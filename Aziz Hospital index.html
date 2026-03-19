@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Aziz Hospital Jatoi - OPD</title>
+    <style>
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 320px; }
+        .login-box input { display: block; width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .login-box button { width: 100%; background: #28a745; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        #main-app { display: none; font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; width: 100%; }
+        .container { width: 60%; padding: 20px; background: white; border-right: 2px solid #ddd; height: 100vh; overflow-y: auto; box-sizing: border-box; }
+        .right-panel { width: 40%; padding: 20px; background: #e9ecef; height: 100vh; overflow-y: auto; box-sizing: border-box; }
+        .form-group { margin-bottom: 10px; display: flex; align-items: center; }
+        label { width: 140px; font-weight: bold; font-size: 14px; }
+        input, select { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .buttons { margin-top: 20px; display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 15px; }
+        .btn { padding: 10px 15px; cursor: pointer; border: none; color: white; border-radius: 4px; font-weight: bold; }
+        .btn-save { background: #28a745; } .btn-add { background: #007bff; } .btn-search { background: #17a2b8; } .btn-delete { background: #dc3545; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; background: white; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background: #333; color: white; }
+        .dev-tag { margin-top: 30px; padding: 15px; border-top: 2px solid #333; background: #fff; font-weight: bold; color: #d35400; }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-box">
+        <h2>Hospital Login</h2>
+        <input type="text" id="userInput" placeholder="User Name (AHJ)">
+        <input type="password" id="passInput" placeholder="Password (Ayaz786)">
+        <button onclick="validateLogin()">LOGIN</button>
+        <p id="error-msg" style="color:red; display:none; margin-top:10px;">Ghalat Detail!</p>
+    </div>
+</div>
+
+<div id="main-app">
+    <div class="container">
+        <h2 style="color: #2c3e50;">Aziz Hospital Jatoi - OPD</h2>
+        <div class="form-group"><label>Date:</label><input type="date" id="entryDate" onchange="resetAppNo()"></div>
+        <div class="form-group">
+            <label>MR Number:</label>
+            <input type="text" id="mrNumber" readonly style="background:#eee;">
+            <button class="btn btn-search" style="margin-left:5px" onclick="searchMR()">MR Search</button>
+        </div>
+        <div class="form-group"><label>App#:</label><input type="text" id="appNo" readonly style="background:#eee;"></div>
+        
+        <div class="form-group">
+            <label>Dr. Name:</label>
+            <select id="drName" onchange="updateFee()">
+                <option value="">Select Doctor</option>
+                <option value="Dr. Abdul Aziz SB">Dr. Abdul Aziz SB</option>
+                <option value="DR. Shahid Aziz SB">DR. Shahid Aziz SB</option>
+                <option value="Dr. Ali Naqi SB">Dr. Ali Naqi SB</option>
+                <option value="Dr. Sumaira Altaf">Dr. Sumaira Altaf</option>
+                <option value="Dr. Jawad Qasim SB">Dr. Jawad Qasim SB</option>
+            </select>
+        </div>
+
+        <div class="form-group"><label>Patient Name:</label><input type="text" id="pName"></div>
+        <div class="form-group"><label>CNIC:</label><input type="text" id="cnic"></div>
+        <div class="form-group"><label>Age:</label><input type="number" id="age"></div>
+        <div class="form-group"><label>Gender:</label><select id="gender"><option>Male</option><option>Female</option></select></div>
+        <div class="form-group"><label>Contact:</label><input type="text" id="contact"></div>
+        <div class="form-group"><label>Address:</label><input type="text" id="address"></div>
+
+        <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-top:15px; border:1px solid #eee;">
+            <h3>Pre-Examination</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group"><label>BP:</label><input type="text" id="bp"></div>
+                <div class="form-group"><label>Temp:</label><input type="text" id="temp"></div>
+                <div class="form-group"><label>Pulse:</label><input type="text" id="pulse"></div>
+                <div class="form-group"><label>Fee (PKR):</label><input type="number" id="fee"></div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-save" onclick="saveAndPrint()">Save and Print</button>
+            <button class="btn btn-add" onclick="addNew()">Add New</button>
+            <button class="btn btn-delete" onclick="deleteRecord()">Delete</button>
+        </div>
+
+        <div class="dev-tag">Developer Ayaz Majeed | 0300-1199701</div>
+    </div>
+
+    <div class="right-panel">
+        <h3>Today's Patients</h3>
+        <table id="recordTable">
+            <thead><tr><th>App#</th><th>MR#</th><th>Name</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function validateLogin() {
+        if (document.getElementById('userInput').value === "AHJ" && document.getElementById('passInput').value === "Ayaz786") {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
+        } else { document.getElementById('error-msg').style.display = 'block'; }
+    }
+
+    function updateFee() {
+        const dr = document.getElementById('drName').value;
+        if(dr !== "") { document.getElementById('fee').value = 500; }
+        else { document.getElementById('fee').value = ""; }
+    }
+
+    let patients = JSON.parse(localStorage.getItem('patients')) || [];
+    let mrCounter = parseInt(localStorage.getItem('mrCounter')) || 1;
+
+    window.onload = function() {
+        document.getElementById('entryDate').valueAsDate = new Date();
+        addNew();
+        loadTable();
+    };
+
+    function addNew() {
+        ['pName', 'cnic', 'age', 'contact', 'address', 'bp', 'temp', 'pulse', 'fee'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('drName').selectedIndex = 0;
+        document.getElementById('mrNumber').value = mrCounter;
+        resetAppNo();
+    }
+
+    function resetAppNo() {
+        let date = document.getElementById('entryDate').value;
+        let todaysCount = patients.filter(p => p.date === date).length;
+        document.getElementById('appNo').value = todaysCount + 1;
+    }
+
+    function saveAndPrint() {
+        let name = document.getElementById('pName').value;
+        if(!name) { alert("Patient Name lazmi hai!"); return; }
+
+        let patient = {
+            date: document.getElementById('entryDate').value,
+            mr: document.getElementById('mrNumber').value,
+            appNo: document.getElementById('appNo').value,
+            name: name,
+            dr: document.getElementById('drName').value,
+            fee: document.getElementById('fee').value,
+            bp: document.getElementById('bp').value,
+            temp: document.getElementById('temp').value
+        };
+
+        patients.push(patient);
+        if (parseInt(patient.mr) === mrCounter) mrCounter++;
+        localStorage.setItem('patients', JSON.stringify(patients));
+        localStorage.setItem('mrCounter', mrCounter);
+        loadTable();
+        printSlip(patient);
+        addNew();
+    }
+
+    function printSlip(p) {
+        let win = window.open('', '', 'width=400,height=600');
+        win.document.write(`<html><body style="font-family:monospace;padding:20px; border:1px solid #000;">
+            <center><h2>AZIZ HOSPITAL JATOI</h2><p>OPD RECEIPT</p></center><hr>
+            <p><b>MR#:</b> ${p.mr} &nbsp;&nbsp; <b>App#:</b> ${p.appNo}</p>
+            <p><b>Date:</b> ${p.date}</p>
+            <p><b>Patient:</b> ${p.name}</p>
+            <p><b>Doctor:</b> ${p.dr}</p>
+            <p><b>BP:</b> ${p.bp} &nbsp;&nbsp; <b>Temp:</b> ${p.temp}</p>
+            <p><b>Total Fee:</b> ${p.fee} PKR</p><hr>
+            <center><p>Get Well Soon!</p></center>
+        </body></html>`);
+        win.document.close();
+        win.print();
+    }
+
+    function searchMR() {
+        let id = prompt("MR Number:");
+        let f = patients.find(p => p.mr == id);
+        if(f) { document.getElementById('pName').value = f.name; alert("Record Mil Gaya!"); }
+        else alert("Nahi Mila!");
+    }
+
+    function loadTable() {
+        let tbody = document.querySelector('#recordTable tbody');
+        tbody.innerHTML = '';
+        patients.slice().reverse().forEach(p => {
+            tbody.innerHTML += `<tr><td>${p.appNo}</td><td>${p.mr}</td><td>${p.name}</td></tr>`;
+        });
+    }
+
+    function deleteRecord() {
+        let id = prompt("Delete MR#:");
+        patients = patients.filter(p => p.mr != id);
+        localStorage.setItem('patients', JSON.stringify(patients));
+        loadTable();
+    }
+</script>
+</body>
+</html>
